@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Study Schedule</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .day-column {
+      min-height: 200px;
+    }
+    .subject-slot {
+      margin-bottom: 12px;
+      cursor: grab;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen py-8 px-4">
+
+  <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+    <!-- Header -->
+    <div class="bg-purple-600 px-6 py-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-white">📚 Your Study Schedule</h1>
+        <p class="text-purple-100 mt-1">Starting from: <span class="font-semibold">{{ start_day }}</span></p>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="p-6">
+      <!-- Day Headers -->
+      <div class="grid grid-cols-7 gap-2 mb-4">
+        {% for day in ordered_days %}
+          <div class="text-center font-semibold py-2 px-1 rounded-lg 
+            {{ 'bg-purple-100 text-purple-800' if day == start_day else 'bg-gray-50 text-gray-700' }}">
+            {{ day[:3] }}
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Schedule Slots -->
+      <div class="grid grid-cols-7 gap-3">
+        {% for day in ordered_days %}
+          <div class="day-column bg-gray-50 rounded-lg p-2 border border-gray-200" data-day="{{ day }}"
+               ondragover="event.preventDefault()" ondrop="drop(event)">
+            <div class="text-xs text-center text-gray-500 mb-2 font-medium">{{ day }}</div>
+
+            {% for slot in study_slots %}
+              {% if slot.day == day %}
+                <div class="subject-slot {{ slot.color }} rounded-lg p-3 shadow-sm text-white"
+                     draggable="true"
+                     ondragstart="drag(event)"
+                     data-subject="{{ slot.subject }}"
+                     data-time="{{ slot.time }}"
+                     id="{{ day }}-{{ loop.index }}">
+                  <p class="font-bold">{{ slot.subject }}</p>
+                  <p class="text-sm mt-1">{{ slot.time }}</p>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-center">
+      <a href="/" class="px-5 py-2 bg-white border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium">
+        ← Create New Schedule
+      </a>
+    </div>
+  </div>
+
+  <!-- Drag and Drop Logic + Save -->
+  <script>
+    let dragged;
+
+    function drag(event) {
+      dragged = event.target;
+      event.dataTransfer.effectAllowed = "move";
+    }
+
+    function drop(event) {
+      event.preventDefault();
+      if (dragged && event.currentTarget !== dragged.parentNode) {
+        event.currentTarget.appendChild(dragged);
+      }
+    }
+  </script>
+
+</body>
+</html>
